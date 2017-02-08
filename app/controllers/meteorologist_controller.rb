@@ -17,15 +17,31 @@ class MeteorologistController < ApplicationController
 
 
 
-    @current_temperature = "Replace this string with your answer."
+    @street_address.gsub(' ', '+')
 
-    @current_summary = "Replace this string with your answer."
+    @url = "http://maps.googleapis.com/maps/api/geocode/json?address="+@street_address
 
-    @summary_of_next_sixty_minutes = "Replace this string with your answer."
+    @parsed_data = JSON.parse(open(@url).read)
 
-    @summary_of_next_several_hours = "Replace this string with your answer."
+    @latitude = @parsed_data["results"][0]["geometry"]["location"]["lat"]
 
-    @summary_of_next_several_days = "Replace this string with your answer."
+    @longitude = @parsed_data["results"][0]["geometry"]["location"]["lng"]
+
+
+    @weatherurl = "https://api.darksky.net/forecast/31deec606cce366b4ea270c201dce80b/"+@latitude.to_s+","+@longitude.to_s
+
+    @parsed_weather = JSON.parse(open(@weatherurl).read)
+
+    @current_temperature = @parsed_weather["currently"]["temperature"]
+
+    @current_summary = @parsed_weather["currently"]["summary"]
+
+    @summary_of_next_sixty_minutes = @parsed_weather["minutely"]["summary"]
+
+    @summary_of_next_several_hours = @parsed_weather["hourly"]["summary"]
+
+    @summary_of_next_several_days = @parsed_weather["daily"]["summary"]
+
 
     render("meteorologist/street_to_weather.html.erb")
   end
